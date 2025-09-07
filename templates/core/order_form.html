@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }} - Gestion de Stock{% endblock %}
+
+{% block content %}
+<div class="py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="fas fa-shopping-cart"></i> {{ title }}</h1>
+    </div>
+    
+    <div class="card">
+        <div class="card-body">
+            <form method="post" id="orderForm">
+                {% csrf_token %}
+                {{ formset.management_form }}
+                
+                <div id="order-items">
+                    {% for form in formset %}
+                        <div class="order-item border rounded p-3 mb-3">
+                            <div class="row align-items-center">
+                                <div class="col-md-5">
+                                    <label class="form-label">Produit</label>
+                                    {{ form.product }}
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Quantité</label>
+                                    {{ form.quantity }}
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label">Prix</label>
+                                    <div class="form-control-plaintext" id="price-{{ forloop.counter0 }}">0.00 DH</div>
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label">Actions</label>
+                                    <div>
+                                        {% if form.DELETE %}
+                                            {{ form.DELETE }}
+                                            <label for="{{ form.DELETE.id_for_label }}" class="btn btn-outline-danger btn-sm">
+                                                <i class="fas fa-trash"></i> Supprimer
+                                            </label>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            {% for hidden in form.hidden_fields %}
+                                {{ hidden }}
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+                </div>
+                
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <button type="button" class="btn btn-outline-primary" id="add-item">
+                        <i class="fas fa-plus"></i> Ajouter un article
+                    </button>
+                    <div class="h5">
+                        Total: <span id="total">0.00 DH</span>
+                    </div>
+                </div>
+                
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Créer la commande
+                    </button>
+                    <a href="{% url 'core:order_list' %}" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Annuler
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Get product prices via AJAX
+    const products = {};
+    
+    // Initialize product prices
+    document.addEventListener('DOMContentLoaded', function() {
+        const productSelects = document.querySelectorAll('select[name$="-product"]');
+        productSelects.forEach(select => {
+            select.addEventListener('change', updatePrice);
+        });
+        
+        const quantityInputs = document.querySelectorAll('input[name$="-quantity"]');
+        quantityInputs.forEach(input => {
+            input.addEventListener('input', updateTotal);
+        });
+        
+        // Load initial prices
+        updateAllPrices();
+    });
+    
+    function updatePrice(event) {
+        const select = event.target;
+        const index = select.name.match(/form-(\d+)-product/)[1];
+        const priceElement = document.getElementById(`price-${index}`);
+        
+        if (select.value) {
+            // In a real app, you'd fetch this via AJAX
+            // For now, we'll simulate it
+            priceElement.textContent = '0.00 €';
+        } else {
+            priceElement.textContent = '0.00 €';
+        }
+        
+        updateTotal();
+    }
+    
+    function updateAllPrices() {
+        const productSelects = document.querySelectorAll('select[name$="-product"]');
+        productSelects.forEach(select => {
+            if (select.value) {
+                const index = select.name.match(/form-(\d+)-product/)[1];
+                const priceElement = document.getElementById(`price-${index}`);
+                priceElement.textContent = '0.00 DH';
+            }
+        });
+        updateTotal();
+    }
+    
+    function updateTotal() {
+        let total = 0;
+        const orderItems = document.querySelectorAll('.order-item');
+        
+        orderItems.forEach((item, index) => {
+            const deleteCheckbox = item.querySelector('input[name$="-DELETE"]');
+            if (deleteCheckbox && deleteCheckbox.checked) {
+                return;
+            }
+            
+            const quantityInput = item.querySelector('input[name$="-quantity"]');
+            const priceText = item.querySelector(`#price-${index}`);
+            
+            if (quantityInput && priceText) {
+                const quantity = parseInt(quantityInput.value) || 0;
+                const price = parseFloat(priceText.textContent.replace(' DH', '')) || 0;
+                total += quantity * price;
+            }
+        });
+        
+        document.getElementById('total').textContent = total.toFixed(2) + ' DH';
+    }
+    
+    // Add new item functionality would go here
+    document.getElementById('add-item').addEventListener('click', function() {
+        alert('Fonctionnalité d\'ajout dynamique à implémenter');
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,157 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - Gestion de Stock{% endblock %}
+
+{% block content %}
+<div class="py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="fas fa-tachometer-alt"></i> Dashboard</h1>
+        <div class="btn-group">
+            <a href="{% url 'core:order_create' %}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Nouvelle commande
+            </a>
+            {% if user.is_admin %}
+            <a href="{% url 'core:product_add' %}" class="btn btn-success">
+                <i class="fas fa-plus"></i> Nouveau produit
+            </a>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card stats-card">
+                <div class="card-body text-center">
+                    <i class="fas fa-box fa-2x mb-2"></i>
+                    <h3>{{ total_products }}</h3>
+                    <p class="mb-0">Produits</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stats-card-success">
+                <div class="card-body text-center">
+                    <i class="fas fa-shopping-cart fa-2x mb-2"></i>
+                    <h3>{{ total_orders }}</h3>
+                    <p class="mb-0">Commandes totales</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stats-card-warning">
+                <div class="card-body text-center">
+                    <i class="fas fa-user-shopping fa-2x mb-2"></i>
+                    <h3>{{ total_user_orders }}</h3>
+                    <p class="mb-0">Mes commandes</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stats-card-info">
+                <div class="card-body text-center">
+                    <i class="fas fa-clock fa-2x mb-2"></i>
+                    <h3>{{ recent_orders|length }}</h3>
+                    <p class="mb-0">Commandes récentes</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <!-- Recent Orders -->
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5><i class="fas fa-shopping-cart"></i> Commandes récentes</h5>
+                    <a href="{% url 'core:order_list' %}" class="btn btn-sm btn-outline-primary">Voir tout</a>
+                </div>
+                <div class="card-body">
+                    {% if recent_orders %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        {% if user.is_admin %}<th>Client</th>{% endif %}
+                                        <th>Date</th>
+                                        <th>Statut</th>
+                                        <th>Total</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for order in recent_orders %}
+                                    <tr>
+                                        <td>#{{ order.id }}</td>
+                                        {% if user.is_admin %}<td>{{ order.client.username }}</td>{% endif %}
+                                        <td>{{ order.order_date|date:"d/m/Y H:i" }}</td>
+                                        <td>
+                                            {% if order.status == 'draft' %}
+                                                <span class="badge bg-secondary">Brouillon</span>
+                                            {% elif order.status == 'confirmed' %}
+                                                <span class="badge bg-success">Confirmé</span>
+                                            {% elif order.status == 'shipped' %}
+                                                <span class="badge bg-primary">Expédié</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ order.total|floatformat:2 }} DH</td>
+                                        <td>
+                                            <a href="{% url 'core:order_detail' order.pk %}" class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted">Aucune commande récente.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Recent Products -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5><i class="fas fa-box"></i> Produits récents</h5>
+                    <a href="{% url 'core:product_list' %}" class="btn btn-sm btn-outline-primary">Voir tout</a>
+                </div>
+                <div class="card-body">
+                    {% if recent_products %}
+                        {% for product in recent_products %}
+                        <div class="d-flex align-items-center mb-3 p-2 border rounded">
+                            {% if product.image %}
+                                <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-image me-3">
+                            {% else %}
+                                <div class="product-image me-3 bg-light d-flex align-items-center justify-content-center">
+                                    <i class="fas fa-box text-muted"></i>
+                                </div>
+                            {% endif %}
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1">{{ product.name }}</h6>
+                                <div class="d-flex align-items-center">
+                                    <span class="price me-2">{{ product.price }} DH</span>
+                                    <span class="stock-status">
+                                        <i class="fas {% if product.quantity <= 0 %}fa-exclamation-circle text-danger{% else %}fa-check-circle text-success{% endif %} me-1"></i>
+                                        Stock: 
+                                        <span class="stock-quantity {% if product.quantity <= 0 %}text-danger{% else %}text-success{% endif %}">
+                                            {{ product.quantity }}
+                                        </span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted">Aucun produit.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

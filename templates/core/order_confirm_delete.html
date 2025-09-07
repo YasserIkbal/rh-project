@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block title %}Supprimer Commande - Gestion de Stock{% endblock %}
+
+{% block content %}
+<div class="py-4">
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5><i class="fas fa-trash"></i> Supprimer Commande #{{ order.id }}</h5>
+            <a href="{% url 'core:order_list' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left"></i> Retour à la liste
+            </a>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-warning">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                Êtes-vous sûr de vouloir supprimer cette commande ? Cette action est irréversible.
+            </div>
+            
+            <div class="order-summary">
+                <h5>Informations de la commande</h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Client:</strong> {{ order.client.username }}</p>
+                        <p><strong>Date:</strong> {{ order.order_date|date:"d/m/Y H:i" }}</p>
+                        <p><strong>Statut:</strong> {{ order.get_status_display }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Articles:</strong> {{ order.total_items }}</p>
+                        <p><strong>Total:</strong> {{ order.total }} DH</p>
+                    </div>
+                </div>
+            </div>
+            
+            <form method="post" class="mt-4">
+                {% csrf_token %}
+                <div class="text-end">
+                    <a href="{% url 'core:order_list' %}" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Annuler
+                    </a>
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash"></i> Supprimer
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

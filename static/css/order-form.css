@@ -1,0 +1,92 @@
+/* Styles minimalistes pour le formulaire de commande */
+.order-form-container {
+    padding: 1.5rem;
+}
+
+.order-form-card {
+    background: white;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.order-form-card h3 {
+    padding: 1rem;
+    border-bottom: 1px solid #eee;
+    margin: 0;
+    font-size: 1.2rem;
+}
+
+.form-section {
+    padding: 1rem;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-control, .form-select {
+    border: 1px solid #ddd;
+    padding: 0.5rem;
+    border-radius: 4px;
+}
+
+.form-label {
+    color: #333;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+.order-item {
+    background: #f8f9fa;
+    border-radius: 4px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.order-item-actions {
+    margin-top: 0.5rem;
+}
+
+.order-item-remove {
+    color: #dc3545;
+    cursor: pointer;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    padding: 1rem;
+    border-top: 1px solid #eee;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.btn-secondary {
+    background-color: #fff;
+    color: #333;
+    border: 1px solid #ddd;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .order-form-container {
+        padding: 1rem;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+}

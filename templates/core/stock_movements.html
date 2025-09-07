@@ -1,0 +1,170 @@
+{% extends 'base.html' %}
+
+{% block title %}Historique - Gestion de Stock{% endblock %}
+
+{% block content %}
+<div class="py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="fas fa-history"></i> Historique des Commandes et Mouvements</h1>
+        <div class="btn-group">
+            <a href="{% url 'core:export_stock_pdf' %}" class="btn btn-danger">
+                <i class="fas fa-file-pdf"></i> Export PDF
+            </a>
+            <a href="{% url 'core:export_stock_excel' %}" class="btn btn-success">
+                <i class="fas fa-file-excel"></i> Export Excel
+            </a>
+        </div>
+    </div>
+    
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card stats-card">
+                <div class="card-body text-center">
+                    <i class="fas fa-shopping-cart fa-2x mb-2"></i>
+                    <h3>{{ total_orders }}</h3>
+                    <p class="mb-0">Commandes</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stats-card-success">
+                <div class="card-body text-center">
+                    <i class="fas fa-box fa-2x mb-2"></i>
+                    <h3>{{ total_items }}</h3>
+                    <p class="mb-0">Articles</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stats-card-warning">
+                <div class="card-body text-center">
+                    <i class="fas fa-euro-sign fa-2x mb-2"></i>
+                    <h3>{{ total_revenue }} DH</h3>
+                    <p class="mb-0">Chiffre d'Affaires</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stats-card-info">
+                <div class="card-body text-center">
+                    <i class="fas fa-exchange-alt fa-2x mb-2"></i>
+                    <h3>{{ total_movements }}</h3>
+                    <p class="mb-0">Mouvements</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <!-- Order History -->
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5><i class="fas fa-history"></i> Historique des Commandes</h5>
+                </div>
+                <div class="card-body">
+                    {% for order_id, data in order_movements.items %}
+                    <div class="d-flex align-items-center mb-3 p-2 border rounded">
+                        <div class="flex-grow-1">
+                            <h6 class="mb-1">
+                                <i class="fas fa-shopping-cart me-2"></i>
+                                Commande #{{ data.order.id }}
+                            </h6>
+                            <small class="text-muted">
+                                Client: {{ data.order.client.username }}<br>
+                                Date: {{ data.order.order_date|date:"d/m/Y H:i" }}<br>
+                                Status: 
+                                {% if data.order.status == 'draft' %}
+                                    <span class="badge bg-secondary">Brouillon</span>
+                                {% elif data.order.status == 'confirmed' %}
+                                    <span class="badge bg-success">Confirmé</span>
+                                {% elif data.order.status == 'shipped' %}
+                                    <span class="badge bg-primary">Expédié</span>
+                                {% endif %}
+                            </small>
+                        </div>
+                        <div class="text-end">
+                            <h5 class="mb-0">{{ data.order.total }} DH</h5>
+                            <small class="text-muted">{{ data.order.total_items }} articles</small>
+                        </div>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Produit</th>
+                                    <th>Qté</th>
+                                    <th>Prix</th>
+                                    <th>Mouvement</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for movement in data.movements %}
+                                <tr>
+                                    <td>{{ movement.product.name }}</td>
+                                    <td>{{ movement.quantity }}</td>
+                                    <td>{{ movement.product.price }} DH</td>
+                                    <td>
+                                        <span class="badge bg-{{ movement.get_movement_type_display|lower }}">
+                                            {{ movement.get_movement_type_display }}
+                                        </span>
+                                    </td>
+                                    <td>{{ movement.created_at|date:"d/m/Y H:i" }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Independent Movements -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5><i class="fas fa-exchange-alt"></i> Mouvements Indépendants</h5>
+                </div>
+                <div class="card-body">
+                    {% if independent_movements %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Type</th>
+                                        <th>Produit</th>
+                                        <th>Qté</th>
+                                        <th>Motif</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for movement in independent_movements %}
+                                    <tr>
+                                        <td>{{ movement.created_at|date:"d/m/Y H:i" }}</td>
+                                        <td>
+                                            <span class="badge bg-{{ movement.get_movement_type_display|lower }}">
+                                                {{ movement.get_movement_type_display }}
+                                            </span>
+                                        </td>
+                                        <td>{{ movement.product.name }}</td>
+                                        <td>{{ movement.quantity }}</td>
+                                        <td>{{ movement.reason }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted text-center">Aucun mouvement indépendant.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

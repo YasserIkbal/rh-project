@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+
+{% block extra_css %}
+<style>
+    .status-badge {
+        padding: 0.5em 1.2em;
+        font-weight: 600;
+        border-radius: 20px;
+        min-width: 100px;
+        text-align: center;
+    }
+    
+    .status-badge.draft {
+        background-color: #e9ecef;
+        color: #6c757d;
+    }
+    
+    .status-badge.confirmed {
+        background-color: #d4edda;
+        color: #155724;
+    }
+    
+    .status-badge.shipped {
+        background-color: #fff3cd;
+        color: #856404;
+    }
+</style>
+{% endblock %}
+
+{% block title %}Commandes - Gestion de Stock{% endblock %}
+
+{% block content %}
+<div class="py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="fas fa-shopping-cart me-2"></i> Commandes</h1>
+        <div class="btn-group">
+            <a href="{% url 'core:order_create' %}" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>Ajouter commande
+            </a>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-body">
+            {% if orders %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Commande</th>
+                            <th>Client</th>
+                            <th>Date</th>
+                            <th>Statut</th>
+                            <th>Articles</th>
+                            <th>Total</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in orders %}
+                        <tr>
+                            <td>
+                                <h6 class="mb-0">#{{ order.id }}</h6>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-user me-2 text-muted"></i>
+                                    <span>{{ order.client.username }}</span>
+                                </div>
+                            </td>
+                            <td>
+                                <span>{{ order.order_date|date:"d/m/Y H:i" }}</span>
+                            </td>
+                            <td>
+                                <span class="status-badge {{ order.get_status_display|lower }}">
+                                    {{ order.get_status_display }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge bg-primary">{{ order.total_items }}</span>
+                            </td>
+                            <td>
+                                <span class="badge bg-success">{{ order.total|floatformat:2 }} DH</span>
+                            </td>
+                            <td>
+                                <div class="btn-group">
+                                    <a href="{% url 'core:order_detail' order.id %}" class="btn btn-outline-primary btn-sm">
+                                        <i class="fas fa-eye"></i> Détails
+                                    </a>
+                                    {% if user.is_admin %}
+                                    <a href="{% url 'core:order_edit' order.id %}" class="btn btn-outline-warning btn-sm">
+                                        <i class="fas fa-edit"></i> Modifier
+                                    </a>
+                                    <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal{{ order.id }}">
+                                        <i class="fas fa-trash"></i> Supprimer
+                                    </button>
+                                    {% endif %}
+                                    <div class="export-buttons">
+                                        <a href="{% url 'core:export_order_pdf' order.id %}" class="btn btn-outline-danger btn-sm">
+                                            <i class="fas fa-file-pdf"></i> PDF
+                                        </a>
+                                        <a href="{% url 'core:export_order_excel' order.id %}" class="btn btn-outline-success btn-sm">
+                                            <i class="fas fa-file-excel"></i> Excel
+                                        </a>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        <!-- Delete Modal -->
+                        <div class="modal fade" id="deleteModal{{ order.id }}" tabindex="-1">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Supprimer la commande</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        Êtes-vous sûr de vouloir supprimer la commande #{{ order.id }} ?
+                                        Cette action est irréversible.
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                                        <form action="{% url 'core:order_delete' order.id %}" method="post" style="display: inline;">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-danger">Supprimer</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-box-open fa-3x mb-3 text-muted"></i>
+                <h4>Aucune commande</h4>
+                <p class="text-muted">Créez une nouvelle commande pour commencer à suivre vos ventes.</p>
+                <a href="{% url 'core:order_create' %}" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>Nouvelle commande
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

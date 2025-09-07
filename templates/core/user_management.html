@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block title %}Gestion des utilisateurs - Gestion de Stock{% endblock %}
+
+{% block content %}
+<div class="py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="fas fa-users"></i> Gestion des utilisateurs</h1>
+        <span class="badge bg-primary">{{ users.count }} utilisateur{{ users.count|pluralize }}</span>
+    </div>
+    
+    {% if users %}
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Utilisateur</th>
+                                <th>Email</th>
+                                <th>Nom complet</th>
+                                <th>Statut</th>
+                                <th>Inscrit le</th>
+                                <th>Dernière connexion</th>
+                                <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user_item in users %}
+                            <tr>
+                                <td><i class="fas fa-user"></i> {{ user_item.username }}</td>
+                                <td>{{ user_item.email }}</td>
+                                <td>{{ user_item.first_name }} {{ user_item.last_name }}</td>
+                                <td>
+                                    <span class="badge {% if user_item.is_admin %}bg-warning{% else %}bg-primary{% endif %}">
+                                        {{ user_item.get_status_display }}
+                                    </span>
+                                </td>
+                                <td>{{ user_item.date_joined|date:"d/m/Y" }}</td>
+                                <td>
+                                    {% if user_item.last_login %}
+                                        {{ user_item.last_login|date:"d/m/Y H:i" }}
+                                    {% else %}
+                                        <span class="text-muted">Jamais</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if user_item != request.user %}
+                                        <form method="post" action="{% url 'core:toggle_admin' user_item.id %}" style="display: inline;">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-sm {% if user_item.is_admin %}btn-danger{% else %}btn-success{% endif %}" 
+                                                    onclick="return confirm('Êtes-vous sûr de vouloir changer le statut admin de {{ user_item.username }} ?')">
+                                                <i class="fas {% if user_item.is_admin %}fa-user-minus{% else %}fa-user-plus{% endif %}"></i>
+                                                {% if user_item.is_admin %}Retirer admin{% else %}Rendre admin{% endif %}
+                                            </button>
+                                        </form>
+                                    {% else %}
+                                        <span class="text-muted">Vous</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-users fa-5x text-muted mb-3"></i>
+            <h3>Aucun utilisateur</h3>
+            <p class="text-muted">Aucun utilisateur enregistré pour le moment.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

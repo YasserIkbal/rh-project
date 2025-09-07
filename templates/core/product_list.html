@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/styles.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">
+            <i class="fas fa-box-open me-2"></i>
+            Liste des produits
+        </h2>
+        <a href="{% url 'core:product_add' %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Ajouter un produit
+        </a>
+    </div>
+
+    {% if products %}
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Image</th>
+                            <th>Nom</th>
+                            <th>Description</th>
+                            <th>Quantité</th>
+                            <th>Prix</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for product in products %}
+                        <tr class="animate-fade-in">
+                            <td>
+                                {% if product.image %}
+                                <img src="{{ product.image.url }}" alt="{{ product.name }}" style="height: 40px; width: 40px; object-fit: cover; border-radius: 8px;">
+                                {% else %}
+                                <div class="bg-light d-flex align-items-center justify-content-center rounded-2" style="height: 40px; width: 40px;">
+                                    <i class="fas fa-box fa-1x text-muted"></i>
+                                </div>
+                                {% endif %}
+                            </td>
+                            <td>{{ product.name }}</td>
+                            <td>{{ product.description }}</td>
+                            <td><span class="badge bg-primary">{{ product.quantity }}</span></td>
+                            <td><span class="badge bg-success">{{ product.price }} DH</span></td>
+                            <td>
+                                <div class="btn-group">
+                                    <a href="{% url 'core:product_edit' product.pk %}" class="btn btn-sm btn-warning">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="{% url 'core:product_delete' product.pk %}" class="btn btn-sm btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce produit ?')">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <i class="fas fa-box-open"></i>
+        <h3>Aucun produit</h3>
+        <p class="text-muted">Commencez par créer votre premier produit.</p>
+        <a href="{% url 'core:product_add' %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Ajouter un produit
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

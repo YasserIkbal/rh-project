@@ -1,0 +1,117 @@
+/* Styles pour la liste des commandes */
+.orders-container {
+    padding: 2rem;
+}
+
+.order-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    margin-bottom: 1rem;
+    transition: transform 0.2s ease;
+}
+
+.order-card:hover {
+    transform: translateY(-2px);
+}
+
+.order-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.order-info {
+    padding: 1rem;
+}
+
+.order-id {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.order-date {
+    color: #666;
+    font-size: 0.8rem;
+}
+
+.order-status {
+    padding: 0.3rem 0.8rem;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.status-draft { background-color: #f8f9fa; color: #6c757d; }
+.status-confirmed { background-color: #d4edda; color: #155724; }
+.status-shipped { background-color: #cce5ff; color: #004085; }
+
+.order-total {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+.export-buttons {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.export-button {
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s ease;
+}
+
+.export-pdf {
+    background-color: #dc3545;
+    color: white;
+}
+
+.export-excel {
+    background-color: #28a745;
+    color: white;
+}
+
+.export-button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Animations */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.order-card {
+    animation: slideIn 0.5s ease forwards;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .order-card {
+        margin-bottom: 1rem;
+    }
+    
+    .order-info {
+        padding: 0.75rem;
+    }
+    
+    .export-buttons {
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+}
